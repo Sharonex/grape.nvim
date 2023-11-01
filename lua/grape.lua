@@ -1,9 +1,9 @@
 
 local M = {}
 
-local default_opts = { "/bin/sh", "/Users/sharonavni/projects/nvim/grape.nvim/rg_runner.sh", "rg", "-L", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case" }
+local default_opts = { "python3", "/Users/sharonavni/projects/nvim/grape.nvim/rg_runner.py", "rg", "-L", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case" }
 
-function M.live_grep()
+function M.live_grape()
     require("telescope.builtin").live_grep({
         vimgrep_arguments = default_opts,
         winblend = 10,
