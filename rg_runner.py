@@ -9,9 +9,9 @@ ONLY_ONCE_FLAGS = ["-L", "--line-number", "-l", "--with-filename", "--column", "
 # 1. rg options that can be used multiple times
 # 2. rg options that should only be used in the first rg call
 # 3. words to find
-def seperate_args(args: list[str]) -> tuple[list[str], list[str], list[str]]:
+def separate_args(args: list[str]) -> tuple[list[str], list[str], list[str]]:
+    rg_second_run_options = []
     rg_first_options = []
-    rg_all_options = []
     words_to_find = []
     encountered_separator = False
 
@@ -21,14 +21,14 @@ def seperate_args(args: list[str]) -> tuple[list[str], list[str], list[str]]:
             continue
 
         if encountered_separator:
-            words_to_find.append(arg)
+            words_to_find += arg.split(" ")
         elif arg in ONLY_ONCE_FLAGS:
             rg_first_options.append(arg)
         else:
             rg_first_options.append(arg)
-            rg_all_options.append(arg)
+            rg_second_run_options.append(arg)
 
-    return rg_all_options, rg_first_options, words_to_find
+    return rg_second_run_options, rg_first_options, words_to_find
 
 
 def build_rg_command_list(
@@ -44,20 +44,56 @@ def build_rg_command_list(
 
 
 def main():
-    rg_all_options, rg_first_options, words_to_find = seperate_args(sys.argv[1:])
-    rg_commands = build_rg_command_list(rg_first_options, rg_all_options, words_to_find)
+    rg_second_options, rg_first_options, words_to_find = separate_args(sys.argv[1:])
+    if len(words_to_find) == 0:
+        return
+    if len(words_to_find) == 1:
+        last_process = subprocess.Popen([*rg_first_options, words_to_find[0]])
+        last_process.wait()
+        return
+
+    rg_commands = build_rg_command_list(
+        rg_first_options, rg_second_options, words_to_find
+    )
 
     prev_process = subprocess.Popen(rg_commands[0], stdout=subprocess.PIPE)
 
-    for rg_command in rg_commands[1:]:
+    for rg_command in rg_commands[1:-1]:
         process = subprocess.Popen(
             rg_command, stdin=prev_process.stdout, stdout=subprocess.PIPE
         )
         prev_process = process
 
-    output, _ = prev_process.communicate()
-    print(output.decode("utf-8"))
+    last_process = subprocess.Popen(rg_commands[-1], stdin=prev_process.stdout)
+    last_process.wait()
 
 
 if __name__ == "__main__":
     main()
+
+
+def stress_test():
+    for i in range(1000):
+        a, b, c = separate_args(
+            [
+                "rg",
+                "-L",
+                "--no-heading",
+                "--with-filename",
+                "--line-number",
+                "--column",
+                "--smart-case",
+                "--",
+                "canon",
+                "abi",
+            ]
+        )
+        build_rg_command_list(a, b, c)
+
+
+def profiling():
+    from cProfile import Profile
+
+    with Profile() as profile:
+        stress_test()
+    profile.print_stats(sort="time")
