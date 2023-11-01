@@ -1,7 +1,33 @@
-
 local M = {}
 
-local default_opts = { "python3", "/Users/sharonavni/projects/nvim/grape.nvim/rg_runner.py", "rg", "-L", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case" }
+function script_path()
+	local script_runner_name = "rg_runner.py"
+	local cwd = debug.getinfo(2, "S").source:sub(2)
+
+	local lastSeparator = cwd:match(".*/")
+
+	if lastSeparator then
+		-- Replace everything after the last separator with the new file name
+		local newA = cwd:sub(1, #lastSeparator) .. "../" .. script_runner_name
+		return newA
+	else
+		-- Handle the case where there is no directory separator in the path
+		print("Invalid path")
+		return cwd:match("(.*/)")
+	end
+end
+
+local default_opts = {
+	"python3",
+	script_path(),
+	"rg",
+	"-L",
+	"--no-heading",
+	"--with-filename",
+	"--line-number",
+	"--column",
+	"--smart-case",
+}
 
 function M.live_grape()
 	require("telescope.builtin").live_grep({
