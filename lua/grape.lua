@@ -17,10 +17,13 @@ function script_path()
 	end
 end
 
-local default_opts = {
+local wrapper_rg_opts = {
 	"python3",
 	script_path(),
 	"rg",
+}
+
+local default_rg_opts = {
 	"-L",
 	"--no-heading",
 	"--with-filename",
@@ -54,9 +57,11 @@ local grape_telescope_ui_options = {
 function M.live_grape(opts)
     local given_opts = opts or {}
     local merged_opts = vim.tbl_deep_extend("keep", given_opts, {
-        vimgrep_arguments = default_opts,
+        vimgrep_arguments = default_rg_opts,
         override_telescope_ui = true,
     })
+
+    merged_opts.vimgrep_arguments = vim.tbl_flatten({ wrapper_rg_opts, merged_opts.vimgrep_arguments })
 
     if merged_opts.override_telescope_ui then
         merged_opts = vim.tbl_deep_extend("keep", merged_opts, grape_telescope_ui_options)
