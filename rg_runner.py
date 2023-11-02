@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
 
 def stress_test():
-    for i in range(1000):
+    for _ in range(1000):
         a, b, c = separate_args(
             [
                 "rg",
