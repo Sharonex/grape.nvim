@@ -10,7 +10,7 @@ Grape will allow you to filter for "i love grape" where's in the default Telesco
 * press <C-f> to stop live grepping
 * add the words I love
 
-<img width="1541" alt="Screenshot 2023-11-02 at 16 38 21" src="https://github.com/Sharonex/grape.nvim/assets/10423841/f6444d36-2505-43ed-a5f5-3b1b00b2eadb">
+<img width="1541" alt="Screenshot 2023-11-02 at 16 38 21" src="https://github.com/Sharonex/grape.nvim/assets/10423841/e3ab20c4-438d-4e9b-98f4-02dfc4b3eebb">
 
 Also, Grape comes with some more comfortable default UI settings(which can be disabled), 
 which allow seeing the actual text you're searching for and not the file being filtered.
