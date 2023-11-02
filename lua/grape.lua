@@ -29,9 +29,7 @@ local default_opts = {
 	"--smart-case",
 }
 
-function M.live_grape()
-	require("telescope.builtin").live_grep({
-		vimgrep_arguments = default_opts,
+local grape_telescope_ui_options = {
 		winblend = 10,
 		extensions = {
 			file_browser = { layout_strategy = "horizontal", sorting_strategy = "ascending" },
@@ -51,7 +49,20 @@ function M.live_grape()
 		},
 		path_display = { "smart", shorten = { len = 3 } },
 		wrap_results = true,
-	})
+}
+
+function M.live_grape(opts)
+    local given_opts = opts or {}
+    local merged_opts = vim.tbl_deep_extend("keep", given_opts, {
+        vimgrep_arguments = default_opts,
+        override_telescope_ui = true,
+    })
+
+    if merged_opts.override_telescope_ui then
+        merged_opts = vim.tbl_deep_extend("keep", merged_opts, grape_telescope_ui_options)
+    end
+
+	require("telescope.builtin").live_grep(merged_opts)
 end
 
 return M
